@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>docs · rhea-linux</title>
+<meta name="description" content="Planned commands for rhea-linux: hearth, rsh and rinfo. Nothing here is released yet.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b0e11'/%3E%3Cpath d='M16 20l18 12-18 12' fill='none' stroke='%23e8a33d' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M38 46h12' stroke='%23e8a33d' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#0b0e11; --panel:#12161b; --line:#1e252d; --text:#e8e4da; --muted:#98a1ab; --dim:#6f7a85; --accent:#e8a33d; --ok:#7fb685;
+  --mono:"JetBrains Mono","SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+header{border-bottom:1px solid var(--line)}
+header .wrap{display:flex;justify-content:space-between;align-items:center;padding-top:20px;padding-bottom:20px;font-family:var(--mono);font-size:14px}
+.logo{color:var(--accent);font-weight:700}
+.logo:hover{text-decoration:none}
+header nav{display:flex;align-items:center;gap:22px}
+nav .cur-page{color:var(--text)}
+.ver{color:var(--dim);font-size:12px}
+
+h1{font-family:var(--mono);font-weight:500;font-size:clamp(36px,7vw,52px);line-height:1.05;margin:56px 0 16px;letter-spacing:-.03em}
+.lead{font-size:18px;color:#c6c9cc;max-width:620px;margin:0 0 22px}
+.note{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);border:1px solid #6b4d1f;border-radius:4px;padding:4px 10px;margin-bottom:48px}
+
+.layout{display:grid;grid-template-columns:200px minmax(0,1fr);gap:48px;align-items:start}
+.toc{position:sticky;top:24px;font-family:var(--mono);font-size:13px;display:flex;flex-direction:column;gap:10px;border-left:1px solid var(--line);padding-left:16px}
+.toc a{color:var(--muted)}
+.toc a:hover{color:var(--accent);text-decoration:none}
+
+section{margin-bottom:56px}
+h2{font-family:var(--mono);font-weight:700;font-size:20px;margin:0 0 8px}
+.sec-desc{color:var(--muted);max-width:620px;margin:0 0 22px}
+
+.cmd{border:1px solid var(--line);border-radius:8px;background:var(--panel);margin-bottom:16px;overflow:hidden}
+.cmd-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+.cmd-head code{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--accent)}
+.cmd-head .tag{font-family:var(--mono);font-size:11px;color:var(--dim)}
+.cmd-body{padding:14px 18px 18px}
+.cmd-body p{margin:0 0 12px;color:var(--muted);font-size:15px}
+.cmd-body p:last-child{margin-bottom:0}
+pre{margin:0 0 4px;padding:14px 16px;background:#080a0d;border:1px solid var(--line);border-radius:6px;font-family:var(--mono);font-size:13px;line-height:1.7;color:var(--muted);overflow-x:auto;white-space:pre}
+pre .hl{color:var(--accent)}
+pre .ok{color:var(--ok)}
+pre .dim{color:var(--dim)}
+
+.toc .grp{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-top:10px}
+.toc .grp:first-child{margin-top:0}
+.tab{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.toc label{color:var(--muted);cursor:pointer}
+.toc label:hover{color:var(--accent)}
+.layout section{display:none}
+#t-hearth:checked ~ .layout #hearth,
+#t-rsh:checked ~ .layout #rsh,
+#t-ember:checked ~ .layout #ember,
+#t-rinfo:checked ~ .layout #rinfo,
+#t-errors:checked ~ .layout #errors{display:block}
+#t-hearth:checked ~ .layout label[for="t-hearth"],
+#t-rsh:checked ~ .layout label[for="t-rsh"],
+#t-ember:checked ~ .layout label[for="t-ember"],
+#t-rinfo:checked ~ .layout label[for="t-rinfo"],
+#t-errors:checked ~ .layout label[for="t-errors"]{color:var(--accent)}
+.tab:focus-visible ~ .layout .toc{outline:1px dashed var(--dim);outline-offset:6px}
+footer{border-top:1px solid var(--line);margin-top:48px;padding:34px 0 48px}
+footer p{font-size:12px;color:var(--dim);margin:0;max-width:760px}
+@media(max-width:800px){.layout{grid-template-columns:1fr;gap:24px}.toc{position:static;flex-direction:row;flex-wrap:wrap;border-left:0;padding-left:0;gap:8px 18px}.toc .grp{margin-top:0}h1{margin-top:40px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a class="logo" href="index.html">rhea-linux</a>
+    <nav>
+      <a href="index.html">home</a>
+      <span class="cur-page">docs</span>
+      <span class="ver">linux-lts</span>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>docs</h1>
+  <p class="lead">The commands planned for rhea-linux. The design is complete and the code is not written yet, so this page describes how things are meant to work.</p>
+  <span class="note">planned, nothing here is released</span>
+
+  <input class="tab" type="radio" name="tab" id="t-hearth" checked aria-label="hearth">
+  <input class="tab" type="radio" name="tab" id="t-rsh" aria-label="rsh">
+  <input class="tab" type="radio" name="tab" id="t-ember" aria-label="ember">
+  <input class="tab" type="radio" name="tab" id="t-rinfo" aria-label="rinfo">
+  <input class="tab" type="radio" name="tab" id="t-errors" aria-label="errors">
+
+  <div class="layout">
+    <nav class="toc" aria-label="On this page">
+      <span class="grp">packages</span>
+      <label for="t-hearth">hearth</label>
+      <span class="grp">system</span>
+      <label for="t-rsh">rsh</label>
+      <label for="t-ember">ember</label>
+      <label for="t-rinfo">rinfo</label>
+      <span class="grp">reference</span>
+      <label for="t-errors">errors</label>
+    </nav>
+
+    <div>
+      <section id="hearth">
+        <h2>hearth</h2>
+        <p class="sec-desc">The package manager. It builds from source, checks every download against a recorded checksum, and only allows dependencies on the approved list.</p>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>hearth -I &lt;name&gt;</code><span class="tag">install</span></div>
+          <div class="cmd-body">
+            <p>Builds a package from source. The dependency graph is checked first, and a cycle stops the run before anything is built.</p>
+            <p>If the package is not on the approved list, hearth refuses it.</p>
+<pre><span class="hl">rhea</span>:rsh &gt; hearth -I gcc
+<span class="hl">hearth: gcc is not on the approved list</span></pre>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>hearth -L</code><span class="tag">list</span></div>
+          <div class="cmd-body">
+            <p>Lists what is available. The repositories only carry software that already exists elsewhere on the internet, such as clang, LLVM, musl and the kernel. rhea's own tooling is not in them.</p>
+<pre><span class="hl">rhea</span>:rsh &gt; hearth -L
+clang  llvm  musl  linux</pre>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>install approval</code><span class="tag">output</span></div>
+          <div class="cmd-body">
+            <p>Before anything is downloaded, <code>hearth -I</code> lists what it is about to install: each dependency and the package itself, with their versions and download sizes. Nothing starts until you answer.</p>
+<pre><span class="dim">[name] version [size]</span>
+
+<span class="hl">rhea</span>:rsh &gt; hearth -I foo
+[bar] v0.1.0 [5kb]
+[foo] v1.2.3 [2mb]
+
+want to approve the install [y/n]</pre>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>install progress</code><span class="tag">output</span></div>
+          <div class="cmd-body">
+            <p>While <code>hearth -I</code> works, each package gets one line, and that line is updated in place as the package moves through its stages: downloading, then compiling, then installing. Only the current stage is shown at any time. The first part counts finished packages against the total. During compiling the counter shows files built out of files in total, and the other stages show a percentage.</p>
+<pre><span class="dim">[done/total]  name  version  [stage]  [progress]  [bar]</span>
+
+[0/1]  foo  v1.2.3   [compiling]    [20/282]  [██░░░░░░░░░░░░░░░░░░░░░░░░░]</pre>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>hearth -S &lt;name&gt;</code><span class="tag">search</span></div>
+          <div class="cmd-body">
+            <p>Searches the available recipes. Each result is one line with the version, the app name and the repository it comes from.</p>
+<pre><span class="dim">[version] [appname] [repo]</span>
+
+<span class="hl">rhea</span>:rsh &gt; hearth -S foo
+v1.2.3  foo  main</pre>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>hearth -U</code><span class="tag">update</span></div>
+          <div class="cmd-body">
+            <p>Updates installed packages. rhea-linux is rolling, so this brings the system to the latest recipes. Outdated packages are rebuilt from source, with the same checks as an install and the same progress display.</p>
+<pre><span class="hl">rhea</span>:rsh &gt; hearth -U
+[0/1]  foo  v1.2.4   [compiling]    [20/282]  [██░░░░░░░░░░░░░░░░░░░░░░░░░]</pre>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>recipe</code><span class="tag">format</span></div>
+          <div class="cmd-body">
+            <p>Every package has a recipe, a plain text file that tells hearth what to download and how to build it. This one is an example for llvm.</p>
+<pre>[name] = llvm
+[version] = 23.1.3
+[URL] = https://github.com/llvm/llvm-project/releases/download/llvmorg-23.1.3/llvm-project-23.1.3.src.tar.xz
+[checksum] = sha256:...
+[depends] = cmake ninja python
+
+[build]
+cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+ninja -C build
+
+[install]
+ninja -C build install</pre>
+            <p><code>[name]</code> and <code>[version]</code> identify the package. <code>[URL]</code> is where the source is downloaded from, and <code>[checksum]</code> is what hearth compares the download against before it uses it.</p>
+            <p><code>[depends]</code> lists the packages that must be installed first. Hearth checks these for cycles before any build starts, and build tools such as cmake and ninja are listed here like any other dependency.</p>
+            <p><code>[build]</code> and <code>[install]</code> are the commands hearth runs, one per line.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="rsh">
+        <h2>rsh</h2>
+        <p class="sec-desc">The shell, written for this system. These are the first commands it is planned to understand.</p>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>help</code><span class="tag">builtin</span></div>
+          <div class="cmd-body">
+            <p>Shows the available commands.</p>
+<pre><span class="hl">rhea</span>:rsh &gt; help
+help  rinfo  uname  ls  whoami  hearth  clear</pre>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>uname -a</code><span class="tag">coreutils</span></div>
+          <div class="cmd-body">
+            <p>Prints the system name, host, kernel, architecture and libc.</p>
+<pre><span class="hl">rhea</span>:rsh &gt; uname -a
+Linux rhea linux-lts x86_64 musl</pre>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>ls [path]</code><span class="tag">coreutils</span></div>
+          <div class="cmd-body">
+            <p>Lists the contents of a directory.</p>
+<pre><span class="hl">rhea</span>:rsh &gt; ls /
+bin  boot  dev  etc  home  proc  sys  tmp  usr  var</pre>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>whoami</code><span class="tag">coreutils</span></div>
+          <div class="cmd-body">
+            <p>Prints the current user name.</p>
+<pre><span class="hl">rhea</span>:rsh &gt; whoami
+user</pre>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>cat /etc/os-release</code><span class="tag">coreutils</span></div>
+          <div class="cmd-body">
+            <p>Shows the distribution identity. rhea-linux is rolling, so there is no fixed version number.</p>
+<pre><span class="hl">rhea</span>:rsh &gt; cat /etc/os-release
+NAME="rhea-linux"
+ID=rhea
+VERSION_ID=rolling</pre>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>clear</code><span class="tag">builtin</span></div>
+          <div class="cmd-body">
+            <p>Clears the screen.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="ember">
+        <h2>ember</h2>
+        <p class="sec-desc">The init system. It is the first process the kernel starts, and it brings up everything else. A service is called a flame, and <code>emberctl</code> is the command-line tool for working with flames.</p>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>emberctl light &lt;flame&gt;</code><span class="tag">start</span></div>
+          <div class="cmd-body">
+            <p>Starts a flame.</p>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>emberctl snuff &lt;flame&gt;</code><span class="tag">stop</span></div>
+          <div class="cmd-body">
+            <p>Stops a flame.</p>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>emberctl stoke &lt;flame&gt;</code><span class="tag">restart</span></div>
+          <div class="cmd-body">
+            <p>Restarts a flame.</p>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>emberctl bank &lt;flame&gt;</code><span class="tag">stop, keep ready</span></div>
+          <div class="cmd-body">
+            <p>Stops a flame but keeps it ready to relight quickly.</p>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>emberctl peek &lt;flame&gt;</code><span class="tag">status</span></div>
+          <div class="cmd-body">
+            <p>Shows the status of a flame.</p>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>emberctl flames</code><span class="tag">list</span></div>
+          <div class="cmd-body">
+            <p>Lists all flames that exist on the system.</p>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>emberctl douse</code><span class="tag">shutdown</span></div>
+          <div class="cmd-body">
+            <p>Shuts the machine down.</p>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>emberctl rekindle</code><span class="tag">reboot</span></div>
+          <div class="cmd-body">
+            <p>Reboots the machine.</p>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>emberctl -h</code><span class="tag">help</span></div>
+          <div class="cmd-body">
+            <p>Prints a short list of the commands.</p>
+<pre><span class="hl">rhea</span>:rsh &gt; emberctl -h
+emberctl: control flames
+
+  light &lt;flame&gt;    start a flame
+  snuff &lt;flame&gt;    stop a flame
+  stoke &lt;flame&gt;    restart a flame
+  bank &lt;flame&gt;     stop, keep ready to relight
+  peek &lt;flame&gt;     show a flame's status
+  flames           list all flames
+  douse            shut down
+  rekindle         reboot</pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="rinfo">
+        <h2>rinfo</h2>
+        <p class="sec-desc">System information next to the rhea logo, in the same spirit as fastfetch and neofetch, which rhea-linux does not use.</p>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>rinfo</code><span class="tag">tool</span></div>
+          <div class="cmd-body">
+            <p>Prints the logo with the operating system, kernel, shell, libc, compiler and package count.</p>
+<pre><span class="hl">rhea</span>:rsh &gt; rinfo
+<span class="hl">user</span>@<span class="hl">rhea</span>
+---------
+<span class="hl">OS</span>: rhea-linux x86_64
+<span class="hl">Kernel</span>: linux-lts
+<span class="hl">Shell</span>: rsh
+<span class="hl">Libc</span>: musl
+<span class="hl">Compiler</span>: clang
+<span class="hl">Packages</span>: 0 (hearth)</pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="errors">
+        <h2>errors</h2>
+        <p class="sec-desc">What rsh says when something is missing. Several tools from other systems are left out on purpose.</p>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>unknown command</code><span class="tag">rsh</span></div>
+          <div class="cmd-body">
+            <p>Anything rsh does not know prints the name and says it was not found. This includes <code>systemctl</code>, <code>sudo</code>, <code>fastfetch</code> and <code>neofetch</code>.</p>
+<pre><span class="hl">rhea</span>:rsh &gt; systemctl
+rsh: systemctl: not found</pre>
+          </div>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd-head"><code>apt, pacman, dnf, ...</code><span class="tag">rsh</span></div>
+          <div class="cmd-body">
+            <p>Other package managers are not found, because rhea-linux has no binary packages.</p>
+<pre><span class="hl">rhea</span>:rsh &gt; apt
+rsh: apt: not found. no binary packages.</pre>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>rhea-linux is built on the Linux kernel. Linux® is the registered trademark of Linus Torvalds in the U.S. and other countries.</p>
+  </div>
+</footer>
+</body>
+</html>
