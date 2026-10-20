@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>experimental kernel work</title>
+<style>
+:root{
+  --bg:#0c1014; --panel:#13171c; --line:#1d232a; --text:#e6e9ec; --muted:#9aa3ad; --accent:#e8a33d;
+  --mono:ui-monospace,"JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--mono);line-height:1.7;padding:64px 24px}
+main{max-width:640px;margin:0 auto}
+.lead{margin:0 0 48px;font-size:clamp(18px,4vw,22px)}
+.lead::before{content:"> ";color:var(--accent)}
+h2{font-size:13px;font-weight:500;color:var(--accent);margin:0 0 14px;letter-spacing:.04em}
+section{margin-bottom:40px}
+ul{list-style:none;margin:0;padding:0}
+li{padding:12px 16px;background:var(--panel);border:1px solid var(--line);border-radius:6px;margin-bottom:8px;font-size:14.5px;color:var(--muted)}
+li b{color:var(--text);font-weight:500}
+code{color:var(--text)}
+</style>
+</head>
+<body>
+<main>
+  <p class="lead">Experimental kernel work is in progress.</p>
+
+  <section>
+    <h2>what exists today</h2>
+    <ul>
+      <li><b>Boot sector.</b> Loads the kernel from disk and switches the CPU to 32-bit mode. x86 PCs with BIOS.</li>
+      <li><b>Kernel.</b> Written in C. It drives the screen (text mode) and the keyboard (US layout) itself, with a small command prompt: <code>help</code>, <code>clear</code>, <code>about</code>, <code>echo</code>, <code>color</code>, <code>reboot</code>.</li>
+      <li><b>Its own tools.</b> <code>bld</code> builds it, <code>ka</code> assembles the boot sector and <code>kc</code> compiles the C straight to machine code. No make, no gcc, no binutils.</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>
